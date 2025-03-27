@@ -6,7 +6,7 @@ def producer():
     """Funzione di esempio per un producer."""
     client = MessageQueueClient()
     
-    for i in range(5):
+    for i in range(15):
         message = {
             "id": i,
             "content": f"Messaggio di test #{i}",
@@ -29,7 +29,7 @@ def consumer():
     client.subscribe("esempi")
     
     # Leggi messaggi periodicamente
-    for _ in range(10):
+    for _ in range(20):
         messages = client.get_messages("esempi")
         if messages:
             print(f"Ricevuti {len(messages)} messaggi:")
