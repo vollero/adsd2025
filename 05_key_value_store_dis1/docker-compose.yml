@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  coordinator:
+    build:
+      context: .
+      dockerfile: Dockerfile.coordinator
+    ports:
+      - "8020:8000"
+    environment:
+      - KVS_NODES=kvstore1:8050,kvstore2:8050,kvstore3:8050
+      - QUORUM_SIZE=2  # Almeno la maggioranza dei nodi (N/2 + 1)
+      - REQUEST_TIMEOUT=10
+    depends_on:
+      - kvstore1
+      - kvstore2
+      - kvstore3
+    networks:
+      - kvs_net
+      - frontend_net
+    restart: unless-stopped
+    volumes:
+      - coordinator_logs:/app/logs
+
+  kvstore1:
+    build:
+      context: .
+      dockerfile: Dockerfile.kvstore
+    volumes:
+      - kvstore1_data:/app/data
+    networks:
+      - kvs_net
+    restart: unless-stopped
+    environment:
+      - MAX_CACHE_ITEMS=1000
+      - MAX_CACHE_SIZE_BYTES=10485760  # 10 MB
+      - DB_FILE=/app/data/kv_store.db
+
+  kvstore2:
+    build:
+      context: .
+      dockerfile: Dockerfile.kvstore
+    volumes:
+      - kvstore2_data:/app/data
+    networks:
+      - kvs_net
+    restart: unless-stopped
+    environment:
+      - MAX_CACHE_ITEMS=1000
+      - MAX_CACHE_SIZE_BYTES=10485760  # 10 MB
+      - DB_FILE=/app/data/kv_store.db
+
+  kvstore3:
+    build:
+      context: .
+      dockerfile: Dockerfile.kvstore
+    volumes:
+      - kvstore3_data:/app/data
+    networks:
+      - kvs_net
+    restart: unless-stopped
+    environment:
+      - MAX_CACHE_ITEMS=1000
+      - MAX_CACHE_SIZE_BYTES=10485760  # 10 MB
+      - DB_FILE=/app/data/kv_store.db
+
+networks:
+  kvs_net:
+    internal: true  # Questa rete non è accessibile dall'esterno
+  frontend_net:
+    # Questa rete è accessibile dall'esterno
+
+volumes:
+  kvstore1_data:
+  kvstore2_data:
+  kvstore3_data:
+  coordinator_logs:
