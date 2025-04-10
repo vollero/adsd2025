@@ -1,0 +1,19 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Installa le dipendenze
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia l'applicazione
+COPY kvs_limited_cache.py .
+
+# Esponi la porta
+EXPOSE 8050
+
+# Crea un volume per la persistenza
+VOLUME /app/data
+
+# Comando di avvio
+CMD ["python", "kvs_limited_cache.py"]
