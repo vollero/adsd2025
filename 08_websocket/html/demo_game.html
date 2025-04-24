@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chessboard Game</title>
+    <style>
+        #chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, 40px);
+            grid-template-rows: repeat(8, 40px);
+            border: 2px solid black;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .player {
+            background-color: yellow;
+        }
+
+        .player-other {
+            background-color: lightblue;
+        }
+
+        #usernameInputContainer { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>WebSocket Chessboard Game</h2>
+    <div id="usernameInputContainer">
+        <input id="username" type="text" placeholder="Enter your username" />
+        <button id="setUsername">Set Username</button>
+    </div>
+    <div id="chessboard"></div>
+
+    <script>
+        const chessboard = document.getElementById('chessboard');
+        const usernameInput = document.getElementById('username');
+        const setUsernameButton = document.getElementById('setUsername');
+
+        const BOARD_SIZE = 8;
+
+        let clientID = null;
+        let myUsername = null;
+        let playerPosition = {};
+
+        const ws = new WebSocket('ws://localhost:7000');
+
+        ws.onmessage = (event) => {
+            const message = event.data;
+
+            if (message.startsWith("POSITION|")) {
+                // Update or add a player's position
+                const [_, id, username, x, y] = message.split("|");
+                playerPosition[id] = { username, x: parseInt(x), y: parseInt(y) };
+                drawChessboard();
+            } else if (message.startsWith("LEAVE|")) {
+                // Remove a player from the board
+                const [_, id] = message.split("|");
+                delete playerPosition[id];
+                drawChessboard();
+            }
+        };
+
+        setUsernameButton.onclick = () => {
+            myUsername = usernameInput.value;
+            if (myUsername) {
+                ws.send(myUsername);
+                usernameInput.disabled = true;
+                setUsernameButton.disabled = true;
+            }
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (clientID) {
+                switch (e.key) {
+                    case 'ArrowUp':
+                        ws.send('MOVE|UP');
+                        break;
+                    case 'ArrowDown':
+                        ws.send('MOVE|DOWN');
+                        break;
+                    case 'ArrowLeft':
+                        ws.send('MOVE|LEFT');
+                        break;
+                    case 'ArrowRight':
+                        ws.send('MOVE|RIGHT');
+                        break;
+                }
+            }
+        });
+
+        function drawChessboard() {
+            chessboard.innerHTML = '';
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+
+                    const playerInCell = Object.values(playerPosition).find(player => player.x == j && player.y == i);
+                    if (playerInCell) {
+                        const isCurrentUser = playerInCell.username === myUsername;
+                        cell.classList.add(isCurrentUser ? 'player' : 'player-other');
+                        cell.textContent = playerInCell.username[0].toUpperCase();
+                        if (isCurrentUser) {
+                            clientID = Object.keys(playerPosition).find(key => playerPosition[key].username === myUsername);
+                        }
+                    }
+
+                    chessboard.appendChild(cell);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

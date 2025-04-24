@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat with Presence Highlight</title>
+    <style>
+        #chat { border: 1px solid black; height: 300px; overflow-y: scroll; margin-bottom: 10px; padding: 10px; }
+        #userlist { border: 1px solid black; height: 300px; overflow-y: scroll; margin-bottom: 10px; padding: 10px; }
+        #username, #input { width: 80%; }
+        #usernameInputContainer { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>WebSocket Chat System with Presence Highlight</h2>
+    <div id="usernameInputContainer">
+        <input id="username" type="text" placeholder="Enter your username" />
+        <button id="setUsername">Set Username</button>
+    </div>
+    <div id="chatWrapper">
+        <div id="chat"></div>
+        <div id="userlist"></div>
+    </div>
+    <input id="input" type="text" placeholder="Type a message..." disabled />
+    <button id="send" disabled>Send</button>
+
+    <script>
+        const chat = document.getElementById('chat');
+        const userlist = document.getElementById('userlist');
+        const input = document.getElementById('input');
+        const sendButton = document.getElementById('send');
+        const usernameInput = document.getElementById('username');
+        const setUsernameButton = document.getElementById('setUsername');
+
+        const ws = new WebSocket('ws://localhost:7000');
+
+        ws.onmessage = (event) => {
+            const message = event.data;
+
+            if (message.startsWith("USERS:")) {
+                // Update user list
+                const users = message.substring(6).split(",");
+                userlist.innerHTML = "<strong>Online Users:</strong><br>" + users.join("<br>");
+            } else {
+                // Display chat message
+                const chatMessage = document.createElement('div');
+                chatMessage.textContent = message;
+                chat.appendChild(chatMessage);
+                chat.scrollTop = chat.scrollHeight;
+            }
+        };
+
+        setUsernameButton.onclick = () => {
+            const username = usernameInput.value;
+            if (username) {
+                ws.send(username);
+                usernameInput.disabled = true;
+                setUsernameButton.disabled = true;
+                input.disabled = false;
+                sendButton.disabled = false;
+            }
+        };
+
+        sendButton.onclick = () => {
+            const message = input.value;
+            if (message) {
+                ws.send(message);
+                input.value = '';
+            }
+        };
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
