@@ -3,7 +3,7 @@ import websockets
 
 connected_clients = {}
 
-async def chat_server(websocket, path):
+async def chat_server(websocket):
     await websocket.send("Please enter your username:")
     username = await websocket.recv()
     connected_clients[websocket] = username
@@ -20,9 +20,12 @@ async def chat_server(websocket, path):
 
 async def broadcast_message(message):
     if connected_clients:
-        await asyncio.wait([client.send(message) for client in connected_clients])
+        websockets.broadcast(set(connected_clients.keys()), message)
 
-start_server = websockets.serve(chat_server, '0.0.0.0', 7000)
+async def main():
+    async with websockets.serve(chat_server, '0.0.0.0', 7000):
+        await asyncio.Future()  # Keeps server running
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+if __name__ == "__main__":
+    asyncio.run(main())
+

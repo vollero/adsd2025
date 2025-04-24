@@ -3,7 +3,7 @@ import websockets
 import uuid
 import random
 
-BOARD_SIZE = 16
+BOARD_SIZE = 8
 
 connected_clients = {}
 
@@ -12,7 +12,7 @@ async def send_to_all(message):
     Broadcasts a message to all connected clients.
     """
     if connected_clients:
-        await asyncio.wait([client_data['websocket'].send(message) for client_data in connected_clients.values()])
+        websockets.broadcast({c['websocket'] for c in connected_clients.values()}, message)
 
 async def send_initial_positions(websocket):
     """
@@ -26,10 +26,10 @@ async def send_user_list():
     Broadcasts the list of currently connected users to all clients.
     """
     if connected_clients:
-        user_list_message = "USERS:" + "," + ",".join(client_data['username'] for client_data in connected_clients.values())
-        await asyncio.wait([client_data['websocket'].send(user_list_message) for client_data in connected_clients.values()])
+        user_list_message = "USERS:" + ",".join(client_data['username'] for client_data in connected_clients.values())
+        websockets.broadcast({c['websocket'] for c in connected_clients.values()}, user_list_message)
 
-async def chat_server(websocket, path):
+async def chat_server(websocket):
     """
     Handles incoming WebSocket connections and movements on the chessboard.
     """
@@ -77,7 +77,9 @@ async def chat_server(websocket, path):
 
         await send_user_list()
 
-start_server = websockets.serve(chat_server, '0.0.0.0', 7000)
+async def main():
+    async with websockets.serve(chat_server, "0.0.0.0", 7000):
+        await asyncio.Future()
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+if __name__ == "__main__":
+    asyncio.run(main())
