@@ -3,17 +3,19 @@ import websockets
 
 connected_clients = set()
 
-async def chat_server(websocket, path):
+async def chat_server(websocket):
     connected_clients.add(websocket)
     try:
         async for message in websocket:
-            await asyncio.wait([client.send(message) for client in connected_clients])
+            websockets.broadcast(connected_clients, message)
     except websockets.ConnectionClosed:
         pass
     finally:
-        connected_clients.remove(websocket)
+        connected_clients(websocket)
 
-start_server = websockets.serve(chat_server, '0.0.0.0', 7000)
+async def main():
+    async with websockets.serve(chat_server, "0.0.0.0", 7000):
+        await asyncio.Future()
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+if __name__ == '__main__':
+    asyncio.run(main())
