@@ -250,7 +250,7 @@ app = FastAPI(title="Key-Value Store Distribuito", lifespan=lifespan)
 # Routes
 @app.get("/")
 async def root():
-    return {"message": "Key-Value Store Distribuito"}
+    return {"message": "Key-Value Store"}
 
 @app.get("/keys")
 async def get_all_keys():

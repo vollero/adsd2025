@@ -150,12 +150,12 @@ async def lifespan(app: FastAPI):
     logger.info("Key-value store arrestato correttamente")
 
 # Inizializzazione FastAPI con lifespan
-app = FastAPI(title="Key-Value Store Distribuito", lifespan=lifespan)
+app = FastAPI(title="Key-Value Store", lifespan=lifespan)
 
 # Routes
 @app.get("/")
 async def root():
-    return {"message": "Key-Value Store Distribuito"}
+    return {"message": "Key-Value Store"}
 
 @app.get("/keys")
 async def get_all_keys():

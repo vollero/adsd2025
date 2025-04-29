@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  container_1:
+    build: ./container_1
+    ports:
+      - "5001:5000"
+    networks:
+      - vector_net
+    container_name: container_1
+  container_2:
+    build: ./container_2
+    ports:
+      - "5002:5000"
+    networks:
+      - vector_net
+    container_name: container_2
+  container_3:
+    build: ./container_3
+    ports:
+      - "5003:5000"
+    networks:
+      - vector_net
+    container_name: container_3
+
+networks:
+  vector_net:

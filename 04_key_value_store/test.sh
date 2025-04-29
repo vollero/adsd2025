@@ -36,12 +36,12 @@ curl -X POST "http://localhost:8050/clear-cache" -H "accept: application/json"; 
 # ---------------------------------------
 
 # Script per inserire 2000 chiavi con valori casuali
-for i in {1..2000}; do
-  curl -s -X PUT "http://localhost:8050/key/stress_key_$i" \
-    -H "Content-Type: application/json" \
-    -d "{\"value\": \"valore_casuale_$RANDOM\"}" > /dev/null
-  echo "Inserita chiave stress_key_$i"
-done
+#for i in {1..2000}; do
+#  curl -s -X PUT "http://localhost:8050/key/stress_key_$i" \
+#    -H "Content-Type: application/json" \
+#    -d "{\"value\": \"valore_casuale_$RANDOM\"}" > /dev/null
+#  echo "Inserita chiave stress_key_$i"
+#done
 
 # Inserimento di un valore grande per testare i limiti della cache (dimensione ridotta)
 big_value=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 50000 | head -n 1)

@@ -215,8 +215,8 @@ def main():
                 for node, count in data['distribution'].items():
                     print(f"  - {node}: {count} nodi virtuali")
                 
-                print_colored("\nPrimi 10 nodi dell'anello (per posizione):", "cyan")
-                for i, node_info in enumerate(data['ring'][:10]):
+                print_colored("\nPrimi 20 nodi dell'anello (per posizione):", "cyan")
+                for i, node_info in enumerate(data['ring'][:20]):
                     print(f"  {i+1}. Posizione: {node_info['position']}, Nodo: {node_info['node']}")
             else:
                 print_colored(f"Errore: {response.status_code} - {response.text}", "red")
