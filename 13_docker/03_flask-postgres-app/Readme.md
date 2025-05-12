@@ -1,4 +1,4 @@
-## Livello 2, Esempio 3: Applicazione Web con Database
+## Esempio 3: Applicazione Web con Database
 
 **Concetto:** Creazione di un'applicazione composta da due container:
 1.  Un'applicazione web (continueremo con Python/Flask per coerenza).
