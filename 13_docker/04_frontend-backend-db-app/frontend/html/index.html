@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        h1, h2 { color: #333; }
+        #items-list { list-style-type: none; padding: 0; }
+        #items-list li { background-color: #fff; border: 1px solid #ddd; margin-bottom: 8px; padding: 10px; border-radius: 4px; }
+        .item-name { font-weight: bold; }
+        .item-date { font-size: 0.9em; color: #777; }
+        input[type="text"] { padding: 8px; margin-right: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #error-message { color: red; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Applicazione Frontend Semplice</h1>
+
+    <h2>Aggiungi un Item:</h2>
+    <input type="text" id="itemName" placeholder="Nome dell'item">
+    <button onclick="addItem()">Aggiungi Item</button>
+    <p id="error-message"></p>
+
+    <h2>Items Esistenti:</h2>
+    <ul id="items-list">
+        </ul>
+
+    <script src="script.js"></script>
+</body>
+</html>

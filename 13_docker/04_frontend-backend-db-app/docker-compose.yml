@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Mappa la porta 8080 dell'host alla porta 80 del container frontend (Nginx)
+    depends_on:
+      - backend # Il frontend per funzionare correttamente dipende dal backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000" # Mappa la porta 5001 dell'host alla porta 5000 del container backend (Flask/Gunicorn)
+    environment:
+      FLASK_ENV: development
+      # FLASK_DEBUG: "1" # Se si usa flask run direttamente
+      DB_HOST: db
+      DB_NAME: exampledb
+      DB_USER: exampleuser
+      DB_PASSWORD: examplepass
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app # Mount per sviluppo backend (opzionale, rimuovere per build di produzione)
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: exampledb
+      POSTGRES_USER: exampleuser
+      POSTGRES_PASSWORD: examplepass
+    ports:
+      - "5434:5432" # O la porta host che hai scelto se la 5432 è occupata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exampleuser -d exampledb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
