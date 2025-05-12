@@ -1,4 +1,4 @@
-## Livello 2, Esempio 4: Frontend, Backend e Database
+## Esempio 4: Frontend, Backend e Database
 
 **Concetto:** Creazione di un'applicazione composta da tre container distinti:
 1.  **Frontend:** Una semplice applicazione statica (HTML + JavaScript) servita da un container Nginx.
