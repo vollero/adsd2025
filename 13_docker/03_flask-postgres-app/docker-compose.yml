@@ -1,0 +1,40 @@
+version: '3.8' # Specifica la versione della sintassi di Docker Compose
+
+services:
+  webapp: # Nome del servizio dell'applicazione web
+    build:
+      context: ./webapp # Percorso alla directory contenente il Dockerfile per l'app web
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000" # Mappa la porta 5001 dell'host alla porta 5000 del container webapp
+    environment: # Variabili d'ambiente per il servizio webapp
+      FLASK_ENV: development # Imposta l'ambiente Flask (opzionale, 'development' o 'production')
+      # FLASK_DEBUG: "1" # Abilita il debug di Flask se usi CMD ["flask", "run"]
+      DB_HOST: db # Nome host del servizio database, come definito sotto
+      DB_NAME: exampledb
+      DB_USER: exampleuser
+      DB_PASSWORD: examplepass
+    depends_on: # Specifica che webapp dipende dal servizio db
+      db:
+        condition: service_healthy # Attende che il servizio 'db' sia 'healthy' prima di avviare webapp
+    volumes:
+     - ./webapp:/app # Monta il codice sorgente locale in /app nel container per live reloading (solo sviluppo)
+
+  db: # Nome del servizio del database
+    image: postgres:15-alpine # Usa l'immagine ufficiale di PostgreSQL 15 (versione Alpine, più leggera)
+    environment: # Variabili d'ambiente per il servizio db (PostgreSQL le usa per l'inizializzazione)
+      POSTGRES_DB: exampledb
+      POSTGRES_USER: exampleuser
+      POSTGRES_PASSWORD: examplepass
+    ports:
+      - "5434:5432" # Mappa la porta 5434 dell'host alla 5432 del container (opzionale, per accesso diretto al DB dall'host)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Volume nominato per la persistenza dei dati del database
+    healthcheck: # Controlla lo stato di salute del database
+      test: ["CMD-SHELL", "pg_isready -U exampleuser -d exampledb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes: # Definizione dei volumi nominati
+  postgres_data: # Il nome del volume, Docker lo gestirà
