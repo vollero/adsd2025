@@ -15,6 +15,7 @@ Tutti i servizi sono orchestrati da un singolo file `docker-compose.yml`.
 
 **Struttura della Cartella del Progetto:**
 
+```
 iot-monitoring-stack/
 ├── virtual-sensor/
 │   ├── sensor.py
@@ -25,6 +26,7 @@ iot-monitoring-stack/
 │       
 └── influxdb-datasource.yml
 └── docker-compose.yml
+```
 
 ---
 
