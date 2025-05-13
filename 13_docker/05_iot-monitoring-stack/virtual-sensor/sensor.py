@@ -49,8 +49,9 @@ def generate_sensor_data():
     temperature = round(random.uniform(15.0, 30.0), 2)  # Gradi Celsius
     humidity = round(random.uniform(30.0, 70.0), 2)     # Percentuale
     pressure = round(random.uniform(980.0, 1050.0), 2)  # hPa
+    tvmoc    = round(random.uniform(10,100),2)          # mg/m3
     print(f"[{SENSOR_ID}] Dati generati: Temp={temperature}°C, Hum={humidity}%, Pres={pressure}hPa")
-    return temperature, humidity, pressure
+    return temperature, humidity, pressure, tvmoc
 
 def send_data_to_influxdb():
     """Invia i dati generati a InfluxDB."""
@@ -61,7 +62,7 @@ def send_data_to_influxdb():
             print("Impossibile inviare dati: connessione a InfluxDB fallita.")
             return
 
-    temp, hum, pres = generate_sensor_data()
+    temp, hum, pres, tvmoc = generate_sensor_data()
 
     point = Point("sensor_metrics") \
         .tag("sensorId", SENSOR_ID) \
@@ -69,6 +70,7 @@ def send_data_to_influxdb():
         .field("temperature", temp) \
         .field("humidity", hum) \
         .field("pressure", pres) \
+        .field("tvmoc", tvmoc) \
         .time(time.time_ns(), WritePrecision.NS)
 
     try:
