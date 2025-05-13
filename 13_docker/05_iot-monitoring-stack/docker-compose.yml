@@ -36,6 +36,23 @@ services:
     networks:
       - iot_network
 
+  virtual_sensor2:
+    build:
+      context: ./virtual-sensor2 # Percorso alla cartella del Dockerfile del sensore
+    container_name: virtual_sensor_2
+    depends_on:
+      - influxdb # Il sensore si avvia dopo InfluxDB
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=mysecretadmintoken # Deve corrispondere a DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      - INFLUXDB_ORG=my-iot-org           # Deve corrispondere a DOCKER_INFLUXDB_INIT_ORG
+      - INFLUXDB_BUCKET=iot_bucket        # Deve corrispondere a DOCKER_INFLUXDB_INIT_BUCKET
+      - SENSOR_ID=sensor_alpha_002
+      - REPORT_INTERVAL=5 # Intervallo di invio dati in secondi
+    restart: unless-stopped
+    networks:
+      - iot_network
+
   grafana:
     image: grafana/grafana:10.4.2 # Specifica una versione stabile
     container_name: grafana_dashboard
