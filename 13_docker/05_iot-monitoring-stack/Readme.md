@@ -134,7 +134,7 @@ CMD ["python", "-u", "sensor.py"]
 ```
 
 
-**3. `virtual-sensor/requirements.txt`***
+**3. `virtual-sensor/requirements.txt`**
 
 ```txt
 influxdb-client==1.39.0
