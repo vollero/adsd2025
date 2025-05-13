@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  influxdb:
+    image: influxdb:2.7 # Specifica una versione stabile di InfluxDB 2.x
+    container_name: influxdb_server
+    ports:
+      - "8086:8086" # Porta API e UI di InfluxDB
+    volumes:
+      - influxdb_data:/var/lib/influxdb2 # Persistenza dei dati di InfluxDB
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin          # Sostituisci con il tuo utente
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password123    # Sostituisci con una password robusta!
+      - DOCKER_INFLUXDB_INIT_ORG=my-iot-org          # Sostituisci con la tua organizzazione
+      - DOCKER_INFLUXDB_INIT_BUCKET=iot_bucket       # Sostituisci con il nome del tuo bucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=mysecretadmintoken # Sostituisci con un token sicuro!
+    restart: unless-stopped
+    networks:
+      - iot_network
+
+  virtual_sensor:
+    build:
+      context: ./virtual-sensor # Percorso alla cartella del Dockerfile del sensore
+    container_name: virtual_sensor_1
+    depends_on:
+      - influxdb # Il sensore si avvia dopo InfluxDB
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=mysecretadmintoken # Deve corrispondere a DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      - INFLUXDB_ORG=my-iot-org           # Deve corrispondere a DOCKER_INFLUXDB_INIT_ORG
+      - INFLUXDB_BUCKET=iot_bucket        # Deve corrispondere a DOCKER_INFLUXDB_INIT_BUCKET
+      - SENSOR_ID=sensor_alpha_001
+      - REPORT_INTERVAL=10 # Intervallo di invio dati in secondi
+    restart: unless-stopped
+    networks:
+      - iot_network
+
+  grafana:
+    image: grafana/grafana:10.4.2 # Specifica una versione stabile
+    container_name: grafana_dashboard
+    ports:
+      - "3002:3000" # Porta UI di Grafana
+    volumes:
+      - grafana_data:/var/lib/grafana # Persistenza dei dati di Grafana
+      - ./grafana-provisioning/datasources:/etc/grafana/provisioning/datasources # Provisioning del datasource
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin         # Utente admin di Grafana
+      - GF_SECURITY_ADMIN_PASSWORD=grafanapass # Password admin di Grafana (cambiala!)
+    depends_on:
+      - influxdb # Grafana si avvia dopo InfluxDB
+    restart: unless-stopped
+    networks:
+      - iot_network
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer_ui
+    ports:
+      - "9445:9443" # Porta HTTPS di Portainer
+      - "9002:9000" # Porta HTTP di Portainer (opzionale, se preferisci HTTP)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Permette a Portainer di gestire Docker
+      - portainer_data:/data # Persistenza dei dati di Portainer
+    restart: unless-stopped
+    # Non è necessario metterlo in iot_network se gestisce solo Docker sull'host,
+    # ma può essere utile se si vogliono gestire reti specifiche da Portainer.
+    # Per semplicità, lo lasciamo fuori dalla rete custom per ora.
+
+volumes:
+  influxdb_data:
+  grafana_data:
+  portainer_data:
+
+networks:
+  iot_network:
+    driver: bridge
+

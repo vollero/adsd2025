@@ -1,0 +1,16 @@
+# Questo file configura automaticamente InfluxDB come sorgente dati in Grafana
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB_IoT_Data # Nome della sorgente dati in Grafana
+    type: influxdb
+    access: proxy # Grafana fa da proxy per le richieste
+    url: http://influxdb:8086 # URL del servizio InfluxDB (come definito in docker-compose)
+    jsonData:
+      version: Flux # Specifica che si usa InfluxDB 2.x con linguaggio Flux
+      organization: my-iot-org      # Deve corrispondere a DOCKER_INFLUXDB_INIT_ORG
+      defaultBucket: iot_bucket     # Bucket di default da usare
+      tlsSkipVerify: true # Impostare a false se InfluxDB usa HTTPS con un certificato valido
+    secureJsonData:
+      token: mysecretadmintoken # Deve corrispondere a DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+
