@@ -23,7 +23,7 @@ iot-monitoring-stack/
 │   └── Dockerfile
 ├── grafana-provisioning/
 │   └── datasources/   
-└── influxdb-datasource.yml
+|       └── influxdb-datasource.yml
 └── docker-compose.yml
 ```
 
